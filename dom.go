@@ -17,6 +17,9 @@ type DOM interface {
 	// Unmount removes a component from the DOM (by clearing the parent's HTML or removing the node)
 	// and cleans up any event listeners registered via the Element interface.
 	Unmount(component Component)
+
+	// Log provides logging functionality using the log function passed to New.
+	Log(v ...any)
 }
 
 // Component is the minimal interface for components.

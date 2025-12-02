@@ -12,18 +12,53 @@ type Event interface {
 }
 
 // Element represents a DOM node. It provides methods for direct manipulation and event binding.
+//
+// All content methods (SetText, SetHTML, AppendHTML, SetAttr, SetValue) accept variadic arguments
+// and support multiple input types:
+//   - Strings: Concatenated without spaces
+//   - Numbers: Converted to strings
+//   - Format strings: Printf-style formatting with % specifiers
+//   - Localized strings: Using D.* dictionary for multilingual support
+//
+// For more information about translation and multilingual support, see:
+// https://github.com/cdvelop/tinystring/blob/main/docs/TRANSLATE.md
+//
+// Examples:
+//
+//	elem.SetText("Hello ", "World")           // -> "Hello World"
+//	elem.SetHTML("<div>", "content", "</div>") // -> "<div>content</div>"
+//	elem.SetAttr("class", "btn-", 42)         // -> "btn-42"
+//	elem.SetText(D.Hello)                     // -> "Hello" (EN) or "Hola" (ES)
+//	elem.SetHTML("<h1>%v</h1>", 42)           // -> "<h1>42</h1>"
 type Element interface {
 	// --- Content ---
 
 	// SetText sets the text content of the element.
-	SetText(text string)
+	// Accepts variadic arguments that are concatenated without spaces.
+	//
+	// Examples:
+	//   elem.SetText("Count: ", 42)              // -> "Count: 42"
+	//   elem.SetText(D.Hello, " ", D.User)       // -> "Hello User" (localized)
+	SetText(v ...any)
 
 	// SetHTML sets the inner HTML of the element.
-	SetHTML(html string)
+	// Accepts variadic arguments that are concatenated without spaces.
+	// Supports format strings with % specifiers.
+	//
+	// Examples:
+	//   elem.SetHTML("<div>", "content", "</div>")  // -> "<div>content</div>"
+	//   elem.SetHTML("<h1>%v</h1>", 42)             // -> "<h1>42</h1>"
+	//   elem.SetHTML("<span>%L</span>", D.Hello)    // -> "<span>Hello</span>" (localized)
+	SetHTML(v ...any)
 
 	// AppendHTML adds HTML to the end of the element's content.
 	// Useful for adding items to a list without re-rendering the whole list.
-	AppendHTML(html string)
+	// Accepts variadic arguments that are concatenated without spaces.
+	//
+	// Examples:
+	//   elem.AppendHTML("<li>", item, "</li>")
+	//   elem.AppendHTML("<div class='%s'>%v</div>", "item", count)
+	AppendHTML(v ...any)
 
 	// Remove removes the element from the DOM.
 	Remove()
@@ -40,7 +75,13 @@ type Element interface {
 	ToggleClass(class string)
 
 	// SetAttr sets an attribute value.
-	SetAttr(key, value string)
+	// Accepts variadic arguments that are concatenated without spaces.
+	//
+	// Examples:
+	//   elem.SetAttr("id", "item-", 42)           // -> id="item-42"
+	//   elem.SetAttr("href", "/page/", pageNum)   // -> href="/page/5"
+	//   elem.SetAttr("title", D.Hello)            // -> title="Hello" (localized)
+	SetAttr(key string, v ...any)
 
 	// GetAttr retrieves an attribute value.
 	GetAttr(key string) string
@@ -54,7 +95,12 @@ type Element interface {
 	Value() string
 
 	// SetValue sets the value of an input/textarea/select.
-	SetValue(value string)
+	// Accepts variadic arguments that are concatenated without spaces.
+	//
+	// Examples:
+	//   elem.SetValue("default value")
+	//   elem.SetValue("Item ", 42)                // -> "Item 42"
+	SetValue(v ...any)
 
 	// --- Events ---
 

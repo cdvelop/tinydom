@@ -9,6 +9,7 @@ import (
 // domWasm is the WASM implementation of the DOM interface.
 type domWasm struct {
 	*tinyDOM
+	document     js.Value // Cached document object
 	elementCache []struct {
 		id  string
 		val js.Value
@@ -27,7 +28,8 @@ type domWasm struct {
 // newDom returns a new instance of the domWasm.
 func newDom(td *tinyDOM) DOM {
 	return &domWasm{
-		tinyDOM: td,
+		tinyDOM:  td,
+		document: js.Global().Get("document"),
 	}
 }
 
@@ -44,10 +46,9 @@ func (d *domWasm) Get(id string) (Element, bool) {
 		}
 	}
 
-	doc := js.Global().Get("document")
-	val := doc.Call("getElementById", id)
+	val := d.document.Call("getElementById", id)
 	if val.IsNull() || val.IsUndefined() {
-		// d.log("tinydom: element with id", id, "not found") // Optional logging
+		d.log("tinydom: element with id", id, "not found") // Optional logging
 		return nil, false
 	}
 
@@ -68,9 +69,6 @@ func (d *domWasm) Get(id string) (Element, bool) {
 func (d *domWasm) Mount(parentID string, component Component) error {
 	parent, ok := d.Get(parentID)
 	if !ok {
-		if d.log != nil {
-			d.log("Parent element not found:", parentID)
-		}
 		// Return a simple error using js.Error
 		return &js.Error{Value: js.ValueOf("parent element not found: " + parentID)}
 	}

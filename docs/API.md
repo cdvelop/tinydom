@@ -16,6 +16,9 @@ type DOM interface {
 	// 1. It calls component.RenderHTML()
 	// 2. It sets the InnerHTML of the parent element (found by parentID)
 	// 3. It calls component.OnMount() to bind events
+	//
+	// Note: The parentID element MUST exist in the DOM before calling Mount.
+	// If it is not found, Mount returns an error.
 	Mount(parentID string, component Component) error
 
 	// Unmount removes a component from the DOM (by clearing the parent's HTML or removing the node)
@@ -26,66 +29,43 @@ type DOM interface {
 
 ## Element Interface
 
-The `Element` interface represents a DOM node. It provides methods for direct manipulation and event binding.
+The `Element` interface represents a DOM node with methods for content manipulation, styling, and event handling.
+
+**📖 Full API Documentation**: See [`element.go`](../element.go) for complete interface definition with detailed examples.
+
+### Key Features
+
+All content methods (`SetText`, `SetHTML`, `AppendHTML`, `SetAttr`, `SetValue`) accept variadic arguments and support:
+- **String concatenation** without spaces
+- **Printf-style formatting** with `%` specifiers
+- **Localized content** using `D.*` dictionary
+- **Mixed types** (strings, numbers, etc.)
+
+### Quick Examples
 
 ```go
-type Element interface {
-	// --- Content ---
+// Simple concatenation
+elem.SetText("Count: ", 42)              // -> "Count: 42"
 
-	// SetText sets the text content of the element.
-	SetText(text string)
+// HTML with format strings
+elem.SetHTML("<h1>%v</h1>", title)       // -> "<h1>My Title</h1>"
 
-	// SetHTML sets the inner HTML of the element.
-	SetHTML(html string)
+// Localized content
+elem.SetText(D.Hello)                    // -> "Hello" (EN) or "Hola" (ES)
 
-	// AppendHTML adds HTML to the end of the element's content.
-	// Useful for adding items to a list without re-rendering the whole list.
-	AppendHTML(html string)
+// Multiline HTML components
+elem.SetHTML(`<div class='card'>
+	<h2>%L</h2>
+	<p>%v</p>
+</div>`, D.Title, count)
 
-	// Remove removes the element from the DOM.
-	Remove()
-
-	// --- Attributes & Classes ---
-
-	// AddClass adds a CSS class to the element.
-	AddClass(class string)
-
-	// RemoveClass removes a CSS class from the element.
-	RemoveClass(class string)
-
-	// ToggleClass toggles a CSS class.
-	ToggleClass(class string)
-
-	// SetAttr sets an attribute value.
-	SetAttr(key, value string)
-
-	// GetAttr retrieves an attribute value.
-	GetAttr(key string) string
-
-	// RemoveAttr removes an attribute.
-	RemoveAttr(key string)
-
-	// --- Forms ---
-
-	// Value returns the current value of an input/textarea/select.
-	Value() string
-
-	// SetValue sets the value of an input/textarea/select.
-	SetValue(value string)
-
-	// --- Events ---
-
-	// Click registers a click event handler.
-	// The handler is automatically tracked and removed when the component is unmounted.
-	Click(handler func(event Event))
-
-	// On registers a generic event handler (e.g., "change", "input", "keydown").
-	On(eventType string, handler func(event Event))
-    
-    // Focus sets focus to the element.
-    Focus()
-}
+// Attributes
+elem.SetAttr("id", "item-", 42)          // -> id="item-42"
+elem.SetAttr("href", "/page/", pageNum)  // -> href="/page/5"
 ```
+
+For complete method signatures and more examples, see [`element.go`](../element.go).
+
 
 ## Event Interface
 

@@ -37,7 +37,7 @@ func (c *Counter) OnMount(dom tinydom.DOM) {
     btnEl.Click(func(e tinydom.Event) {
         c.count++
         // 3. Direct Update: Update only the text node, preserving the rest of the DOM
-        valEl.SetText(Convert(c.count).String())
+        valEl.SetText(c.count)
     })
 }
 

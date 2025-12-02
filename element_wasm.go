@@ -4,6 +4,8 @@ package tinydom
 
 import (
 	"syscall/js"
+
+	"github.com/cdvelop/tinystring"
 )
 
 // elementWasm is the WASM implementation of the Element interface.
@@ -14,18 +16,18 @@ type elementWasm struct {
 }
 
 // SetText sets the text content of the element.
-func (e *elementWasm) SetText(text string) {
-	e.val.Set("textContent", text)
+func (e *elementWasm) SetText(v ...any) {
+	e.val.Set("textContent", tinystring.Html(v...).String())
 }
 
 // SetHTML sets the inner HTML of the element.
-func (e *elementWasm) SetHTML(html string) {
-	e.val.Set("innerHTML", html)
+func (e *elementWasm) SetHTML(v ...any) {
+	e.val.Set("innerHTML", tinystring.Html(v...).String())
 }
 
 // AppendHTML adds HTML to the end of the element's content.
-func (e *elementWasm) AppendHTML(html string) {
-	e.val.Call("insertAdjacentHTML", "beforeend", html)
+func (e *elementWasm) AppendHTML(v ...any) {
+	e.val.Call("insertAdjacentHTML", "beforeend", tinystring.Html(v...).String())
 }
 
 // Remove removes the element from the DOM.
@@ -49,8 +51,8 @@ func (e *elementWasm) ToggleClass(class string) {
 }
 
 // SetAttr sets an attribute value.
-func (e *elementWasm) SetAttr(key, value string) {
-	e.val.Call("setAttribute", key, value)
+func (e *elementWasm) SetAttr(key string, v ...any) {
+	e.val.Call("setAttribute", key, tinystring.Html(v...).String())
 }
 
 // GetAttr retrieves an attribute value.
@@ -69,8 +71,8 @@ func (e *elementWasm) Value() string {
 }
 
 // SetValue sets the value of an input/textarea/select.
-func (e *elementWasm) SetValue(value string) {
-	e.val.Set("value", value)
+func (e *elementWasm) SetValue(v ...any) {
+	e.val.Set("value", tinystring.Html(v...).String())
 }
 
 // Click registers a click event handler.

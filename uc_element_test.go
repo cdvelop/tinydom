@@ -28,7 +28,13 @@ func TestElementMethods(t *testing.T) {
 	t.Run("SetText", func(t *testing.T) {
 		el.SetText("Hello World")
 		if rawEl.Get("textContent").String() != "Hello World" {
-			t.Error("SetText failed")
+			t.Error("SetText failed with string")
+		}
+
+		// Test with non-string (int)
+		el.SetText("Count: ", 42)
+		if rawEl.Get("textContent").String() != "Count: 42" {
+			t.Error("SetText failed with variadic args")
 		}
 	})
 

@@ -19,6 +19,32 @@ go get github.com/cdvelop/tinydom
 
 ## ⚡ Quick Start
 
+### 1. HTML Setup
+
+You need a basic HTML file with a container element (e.g., `<div id="app">`) where your Go application will mount.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+    </script>
+</head>
+<body>
+    <!-- The root container for your application -->
+    <div id="app"></div>
+</body>
+</html>
+```
+
+### 2. Go Component
+
 Here is a simple "Counter" component example.
 
 ```go
@@ -60,7 +86,8 @@ func (c *Counter) OnMount(dom tinydom.DOM) {
 
 	btnEl.Click(func(e tinydom.Event) {
 		c.count++
-		valEl.SetText(Convert(c.count).String())
+		// Update the counter
+		valEl.SetText(c.count)
 	})
 }
 
